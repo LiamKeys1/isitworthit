@@ -1,119 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Is it Worth it</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f9fb;
-      padding: 30px;
-      color: #222;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 5px;
-    }
-    h2 {
-      font-size: 1.3em;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    form {
-      max-width: 400px;
-      margin: 0 auto;
-      text-align: left;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background-color: #22334d;
-      color: white;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 30px;
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
+<script>
+  function calculate() {
+    const localPrice = parseFloat(document.getElementById('localPrice').value);
+    const cheapPrice = parseFloat(document.getElementById('cheapPrice').value);
+    const distance = parseFloat(document.getElementById('distance').value);
+    const mpg = parseFloat(document.getElementById('mpg').value);
+    const budget = parseFloat(document.getElementById('budget').value);
 
-  <h1>❓Is it Worth it</h1>
-  <h2>Fuel Cost Calculator</h2>
+    const litresLocal = budget / localPrice;
+    const litresCheap = budget / cheapPrice;
 
-  <form id="calculatorForm">
-    <label>Local fuel price (£ per litre):
-      <input type="number" id="localPrice" step="0.01" required>
-    </label>
+    const roundTripMiles = distance * 2;
+    const gallonsUsed = roundTripMiles / mpg;
+    const litresUsed = gallonsUsed * 4.54609; // UK gallons to litres
+    const costOfTrip = litresUsed * cheapPrice;
 
-    <label>Cheaper fuel price (£ per litre):
-      <input type="number" id="cheapPrice" step="0.01" required>
-    </label>
+    const netSavings = (litresCheap - litresLocal) * cheapPrice - costOfTrip;
 
-    <label>Distance to cheaper station (miles):
-      <input type="number" id="distance" step="0.1" required>
-    </label>
+    const output = `
+      <div style="background:#fff;padding:20px;border-radius:15px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-top:20px;">
+        <p>⛽ <strong>Local:</strong> ${litresLocal.toFixed(2)}L</p>
+        <p>💰 <strong>Cheaper:</strong> ${litresCheap.toFixed(2)}L</p>
+        <p>🚗 <strong>Cost of trip:</strong> £${costOfTrip.toFixed(2)}</p>
+        <p>📊 <strong>Net savings:</strong> £${netSavings.toFixed(2)}</p>
+        <hr style="margin:20px 0;">
+        <h2 style="font-size:1.5em;">🤔 Is it worth it?</h2>
+        <div style="margin-top:10px;">
+          <button onclick="alert('You decided YES!')" style="padding:10px 20px;margin-right:10px;background:#4caf50;color:#fff;border:none;border-radius:5px;font-size:1em;cursor:pointer;">✅ Yes</button>
+          <button onclick="alert('You decided NO!')" style="padding:10px 20px;background:#f44336;color:#fff;border:none;border-radius:5px;font-size:1em;cursor:pointer;">❌ No</button>
+        </div>
+      </div>
+    `;
 
-    <label>Fuel efficiency (MPG):
-      <input type="number" id="mpg" step="0.1" required>
-    </label>
-
-    <label>Amount to spend (£):
-      <input type="number" id="budget" step="0.01" required>
-    </label>
-
-    <button type="button" onclick="calculate()">Calculate</button>
-  </form>
-
-  <div class="result" id="result"></div>
-
-  <script>
-    function calculate() {
-      const localPrice = parseFloat(document.getElementById('localPrice').value);
-      const cheapPrice = parseFloat(document.getElementById('cheapPrice').value);
-      const distance = parseFloat(document.getElementById('distance').value);
-      const mpg = parseFloat(document.getElementById('mpg').value);
-      const budget = parseFloat(document.getElementById('budget').value);
-
-      const litresLocal = budget / localPrice;
-      const litresCheap = budget / cheapPrice;
-
-      const roundTripMiles = distance * 2;
-      const gallonsUsed = roundTripMiles / mpg;
-      const litresUsed = gallonsUsed * 4.54609; // UK gallons to litres
-      const costOfTrip = litresUsed * cheapPrice;
-
-      const netSavings = (litresCheap - litresLocal) * cheapPrice - costOfTrip;
-
-      let message = `
-        Local: ${litresLocal.toFixed(2)}L | Cheaper: ${litresCheap.toFixed(2)}L<br>
-        Cost of trip: £${costOfTrip.toFixed(2)}<br>
-        Net savings: £${netSavings.toFixed(2)}<br>
-      `;
-
-      message += netSavings > 0 ? "✅ Yes, it's worth it!" : "❌ No, not worth it.";
-
-      document.getElementById('result').innerHTML = message;
-    }
-  </script>
-</body>
-</html>
+    document.getElementById('result').innerHTML = output;
+  }
+</script>

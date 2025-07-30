@@ -6,24 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f9fb;
-      padding: 30px;
-      color: #222;
-      text-align: center;
-    }
-    h1 { font-size: 2.5em; margin-bottom: 5px; }
-    h2 { font-size: 1.3em; margin-bottom: 20px; color: #333; }
-    form { max-width: 400px; margin: 0 auto; text-align: left; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
-    button { margin-top: 20px; width: 100%; padding: 12px; background-color: #22334d; color: white; font-size: 16px; border: none; cursor: pointer;}
-    .output-card { background: #fff; border-radius: 12px; padding: 20px; margin-top: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: left; }
-    .output-card div { margin: 10px 0; font-size: 1.1em; }
-    .choice-buttons button { margin: 10px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; }
-    .yes { background-color: #4caf50; color: white; }
-    .no { background-color: #f44336; color: white; }
+    body { font-family: Arial, sans-serif; background:#f7f9fb; padding:30px; color:#222; text-align:center; }
+    h1 { font-size:2.5em; margin-bottom:5px; }
+    h2 { font-size:1.3em; margin-bottom:20px; color:#333; }
+    form { max-width: 480px; margin: 0 auto; text-align: left; }
+    label { display:block; margin-top:15px; font-weight: bold; }
+    .row { display:flex; gap:10px; align-items:center; }
+    input, select { width:100%; padding:10px; margin-top:5px; box-sizing:border-box; }
+    .input-with-button { display:flex; gap:8px; align-items:center; }
+    .mini-btn { padding:9px 10px; border:none; background:#e8eef7; color:#22334d; border-radius:6px; cursor:pointer; white-space:nowrap; }
+    button.calc { margin-top:20px; width:100%; padding:12px; background-color:#22334d; color:#fff; font-size:16px; border:none; cursor:pointer; border-radius:8px; }
+    .output-card { background:#fff; border-radius:12px; padding:20px; margin-top:30px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:left; }
+    .output-card div { margin:10px 0; font-size:1.1em; }
+    .choice-buttons button { margin:10px; padding:10px 20px; border:none; border-radius:8px; font-size:1em; cursor:pointer; }
+    .yes { background-color:#4caf50; color:#fff; }
+    .no { background-color:#f44336; color:#fff; }
+
+    /* Price Finder overlay */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .finder { width: min(600px, 92vw); background:#fff; border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,0.25); padding:18px; }
+    .finder h3 { margin:0 0 8px; }
+    .finder .controls { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 14px; }
+    .finder input[type="text"] { flex:1; }
+    .results { max-height: 300px; overflow:auto; border:1px solid #e6e6e6; border-radius:10px; }
+    .result-row { padding:10px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f1f1f1; }
+    .result-row:last-child { border-bottom:none; }
+    .result-row button { border:none; border-radius:6px; padding:8px 10px; background:#22334d; color:#fff; cursor:pointer; }
+    .close-x { background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:#666; }
+    .badge { font-size:0.85em; background:#e8eef7; color:#22334d; padding:4px 8px; border-radius:999px; }
+    .muted { color:#666; font-size:0.9em; }
   </style>
 </head>
 <body>
@@ -32,27 +43,135 @@
   <h2>Fuel Cost Calculator</h2>
 
   <form id="calculatorForm">
+    <label>Fuel type
+      <select id="fuelType">
+        <option value="unleaded">Unleaded (Petrol)</option>
+        <option value="diesel">Diesel</option>
+      </select>
+    </label>
+
     <label>Local fuel price (£ per litre):
-      <input type="number" id="localPrice" step="0.01" required>
+      <div class="input-with-button">
+        <input type="number" id="localPrice" step="0.01" required>
+        <button type="button" class="mini-btn" onclick="openFinder('localPrice')">Find price (beta)</button>
+      </div>
     </label>
+
     <label>Cheaper fuel price (£ per litre):
-      <input type="number" id="cheapPrice" step="0.01" required>
+      <div class="input-with-button">
+        <input type="number" id="cheapPrice" step="0.01" required>
+        <button type="button" class="mini-btn" onclick="openFinder('cheapPrice')">Find price (beta)</button>
+      </div>
     </label>
-    <label>Distance to cheaper station (miles):
-      <input type="number" id="distance" step="0.1" required>
-    </label>
-    <label>Fuel efficiency (MPG):
-      <input type="number" id="mpg" step="0.1" required>
-    </label>
+
+    <div class="row">
+      <label style="flex:1;">Distance to cheaper station (miles):
+        <input type="number" id="distance" step="0.1" required>
+      </label>
+      <label style="flex:1;">Fuel efficiency (MPG):
+        <input type="number" id="mpg" step="0.1" required>
+      </label>
+    </div>
+
     <label>Amount to spend (£):
       <input type="number" id="budget" step="0.01" required>
     </label>
-    <button type="button" onclick="calculate()">Calculate</button>
+
+    <button type="button" class="calc" onclick="calculate()">Calculate</button>
   </form>
 
   <div id="result"></div>
 
+  <!-- Price Finder Overlay -->
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="finderTitle">
+    <div class="finder">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h3 id="finderTitle">Find fuel prices (beta)</h3>
+        <button class="close-x" onclick="closeFinder()" aria-label="Close">×</button>
+      </div>
+      <div class="controls">
+        <input type="text" id="query" placeholder="Town / postcode (demo data)">
+        <select id="finderFuelType">
+          <option value="unleaded">Unleaded (Petrol)</option>
+          <option value="diesel">Diesel</option>
+        </select>
+        <button type="button" class="mini-btn" onclick="runSearch()">Search</button>
+      </div>
+      <div class="muted" style="margin-bottom:10px;">
+        Demo only — results below come from an in‑page sample dataset. We can plug in a real API next.
+      </div>
+      <div id="results" class="results"></div>
+    </div>
+  </div>
+
   <script>
+    // ====== Demo dataset (replace with real API later) ======
+    const SAMPLE_STATIONS = [
+      { name: "Shell - Manchester Rd", town: "Manchester", postcode: "M20 2AB", unleaded: 145.9, diesel: 152.9 },
+      { name: "BP - Oxford Rd", town: "Oxford", postcode: "OX1 3PL", unleaded: 147.5, diesel: 154.2 },
+      { name: "Tesco Extra - Leeds", town: "Leeds", postcode: "LS1 2XY", unleaded: 142.9, diesel: 149.9 },
+      { name: "Sainsbury's - Cardiff", town: "Cardiff", postcode: "CF10 1AA", unleaded: 143.9, diesel: 151.4 },
+      { name: "Asda - Glasgow", town: "Glasgow", postcode: "G1 2FF", unleaded: 141.9, diesel: 148.9 },
+      { name: "Morrisons - Bristol", town: "Bristol", postcode: "BS1 5AH", unleaded: 144.3, diesel: 150.7 },
+      { name: "Shell - Birmingham", town: "Birmingham", postcode: "B1 1AA", unleaded: 146.7, diesel: 153.1 }
+    ];
+
+    // Remember which input we are filling
+    let targetInputId = null;
+
+    function openFinder(forInputId) {
+      targetInputId = forInputId;
+      // sync fuel type into finder
+      document.getElementById('finderFuelType').value = document.getElementById('fuelType').value;
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('query').focus();
+      // Clear previous results
+      document.getElementById('results').innerHTML = '';
+    }
+
+    function closeFinder() {
+      document.getElementById('overlay').style.display = 'none';
+      targetInputId = null;
+    }
+
+    function runSearch() {
+      const q = document.getElementById('query').value.trim().toLowerCase();
+      const ftype = document.getElementById('finderFuelType').value;
+      const matches = SAMPLE_STATIONS.filter(s =>
+        s.town.toLowerCase().includes(q) || s.postcode.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
+      );
+
+      const resultsDiv = document.getElementById('results');
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = '<div class="result-row"><span>No results in demo data. Try: Manchester, Oxford, Leeds, Cardiff...</span></div>';
+        return;
+      }
+
+      resultsDiv.innerHTML = matches.map(s => {
+        const price = ftype === 'diesel' ? s.diesel : s.unleaded;
+        return `
+          <div class="result-row">
+            <div>
+              <div><strong>${s.name}</strong> <span class="badge">${ftype === 'diesel' ? 'Diesel' : 'Unleaded'}</span></div>
+              <div class="muted">${s.town} • ${s.postcode}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div><strong>£${price.toFixed(1)}</strong> / L</div>
+              <button type="button" onclick="choosePrice(${price})">Use</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function choosePrice(price) {
+      if (!targetInputId) return;
+      const input = document.getElementById(targetInputId);
+      input.value = price.toFixed(2);
+      closeFinder();
+    }
+
+    // ====== Your existing calculation (neutral output) ======
     function calculate() {
       const localPrice = parseFloat(document.getElementById('localPrice').value);
       const cheapPrice = parseFloat(document.getElementById('cheapPrice').value);
@@ -60,12 +179,19 @@
       const mpg = parseFloat(document.getElementById('mpg').value);
       const budget = parseFloat(document.getElementById('budget').value);
 
+      if ([localPrice, cheapPrice, distance, mpg, budget].some(v => isNaN(v) || v <= 0)) {
+        document.getElementById('result').innerHTML = '<div class="output-card">Please enter valid numbers for all fields.</div>';
+        return;
+      }
+
       const litresLocal = budget / localPrice;
       const litresCheap = budget / cheapPrice;
+
       const roundTripMiles = distance * 2;
       const gallonsUsed = roundTripMiles / mpg;
-      const litresUsed = gallonsUsed * 4.54609;
+      const litresUsed = gallonsUsed * 4.54609; // UK gallons to litres
       const costOfTrip = litresUsed * cheapPrice;
+
       const netSavings = (litresCheap - litresLocal) * cheapPrice - costOfTrip;
 
       const resultDiv = document.getElementById('result');
@@ -78,7 +204,7 @@
           <hr>
           <div style="text-align:center; margin-top:20px;">
             <div style="font-size:1.3em; margin-bottom:10px;">🤔 Is it worth it?</div>
-            <div class="choice-buttons">
+            <div class="choice-buttons" style="text-align:center;">
               <button class="yes" onclick="alert('You decided YES!')">✅ Yes</button>
               <button class="no" onclick="alert('You decided NO!')">❌ No</button>
             </div>

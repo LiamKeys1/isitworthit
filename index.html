@@ -2,221 +2,237 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Is it Worth it?</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     body {
-      font-family: 'Rubik', sans-serif;
-      background: #f7f9fc;
-      padding: 20px;
-      color: #222;
-      max-width: 600px;
-      margin: auto;
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
+      color: #111;
       font-size: 2rem;
-      text-align: center;
-      margin-bottom: 10px;
+      margin-top: 30px;
     }
-    h1::before {
-      content: "❓";
-      margin-right: 8px;
-      color: #e63946;
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
     }
     label {
+      font-weight: bold;
       display: block;
-      margin-top: 15px;
+      margin-top: 10px;
     }
     input, select, button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      border-radius: 5px;
       border: 1px solid #ccc;
+      border-radius: 5px;
     }
     button {
-      background-color: #1d3557;
+      background-color: #1b2a49;
       color: white;
-      border: none;
-      margin-top: 20px;
+      font-weight: bold;
       cursor: pointer;
+      margin-top: 20px;
     }
-    .side-inputs {
-      display: flex;
-      gap: 10px;
+    button:hover {
+      background-color: #2e3c64;
     }
-    .side-inputs div {
-      flex: 1;
-    }
-    .fuel-row {
-      display: flex;
-      gap: 10px;
-    }
-    .fuel-row input {
-      flex: 1;
-    }
-    .fuel-row button {
-      flex: 0.8;
-      font-size: 0.9rem;
-      background: #edf2f4;
-      color: #333;
-      border: 1px solid #ccc;
-    }
-    #fuel-popup {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    #results {
+      margin-top: 20px;
+      background: white;
       padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       max-width: 500px;
       width: 90%;
-      z-index: 999;
+    }
+
+    /* Popup overlay */
+    #fuel-popup {
       display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
     }
-    #stationList {
-      margin-top: 10px;
-      max-height: 300px;
-      overflow-y: auto;
+    .popup-content {
+      background: white;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: 100px auto;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-    .station-item {
+    .station {
       padding: 10px;
       border-bottom: 1px solid #eee;
       cursor: pointer;
     }
-    .station-item:hover {
-      background-color: #f0f0f0;
+    .station:hover {
+      background: #f0f0f0;
+    }
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .popup-header button {
+      width: auto;
+      background: #dc3545;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .popup-header button:hover {
+      background: #c82333;
     }
   </style>
 </head>
 <body>
-  <h1>Is it Worth it</h1>
-  <h2 style="text-align: center; font-weight: 400;">Fuel Cost Calculator</h2>
 
-  <label for="fuel-type">Fuel type</label>
-  <select id="fuel-type">
-    <option value="unleaded">Unleaded (Petrol)</option>
-    <option value="diesel">Diesel</option>
-  </select>
+  <h1>❓ Is it Worth it</h1>
+  <form id="fuelForm">
+    <label for="fuelType">Fuel type</label>
+    <select id="fuelType">
+      <option value="unleaded">Unleaded (Petrol)</option>
+      <option value="diesel">Diesel</option>
+    </select>
 
-  <label>Local fuel price (£ per litre):</label>
-  <div class="fuel-row">
-    <input type="number" id="local-price" step="0.1" />
-    <button onclick="openFuelPopup('local')">Find price</button>
-  </div>
-
-  <label>Cheaper fuel price (£ per litre):</label>
-  <div class="fuel-row">
-    <input type="number" id="cheaper-price" step="0.1" />
-    <button onclick="openFuelPopup('cheaper')">Find price</button>
-  </div>
-
-  <div class="side-inputs">
-    <div>
-      <label>Distance to cheaper station (miles):</label>
-      <input type="number" id="distance" step="0.1" />
+    <label for="localPrice">Local fuel price (£ per litre):</label>
+    <div style="display: flex; gap: 5px;">
+      <input type="number" id="localPrice" step="0.01">
+      <button type="button" class="findPriceBtn" data-target="localPrice">Find price</button>
     </div>
-    <div>
-      <label>Fuel efficiency (MPG):</label>
-      <input type="number" id="mpg" step="0.1" />
+
+    <label for="cheaperPrice">Cheaper fuel price (£ per litre):</label>
+    <div style="display: flex; gap: 5px;">
+      <input type="number" id="cheaperPrice" step="0.01">
+      <button type="button" class="findPriceBtn" data-target="cheaperPrice">Find price</button>
     </div>
-  </div>
 
-  <label>Amount to spend (£):</label>
-  <input type="number" id="budget" step="0.1" />
+    <label for="distance">Distance to cheaper station (miles):</label>
+    <input type="number" id="distance">
 
-  <button onclick="calculate()">Calculate</button>
+    <label for="efficiency">Fuel efficiency (MPG):</label>
+    <input type="number" id="efficiency">
 
-  <div id="output"></div>
+    <label for="spend">Amount to spend (£):</label>
+    <input type="number" id="spend">
 
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="results"></div>
+
+  <!-- Popup for station list -->
   <div id="fuel-popup">
-    <strong>Select a station:</strong>
-    <input type="text" id="search" placeholder="Enter town or postcode" style="width:100%;margin:10px 0;padding:8px;border:1px solid #ccc;border-radius:4px;"/>
-    <div id="stationList"></div>
-    <button onclick="closeFuelPopup()">Close</button>
+    <div class="popup-content">
+      <div class="popup-header">
+        <h3>Find Station Price</h3>
+        <button id="close-fuel-popup">Close</button>
+      </div>
+      <input type="text" id="searchInput" placeholder="Enter town or postcode">
+      <div id="stationList"></div>
+    </div>
   </div>
 
   <script>
-    let currentInputTarget = null;
+    const findButtons = document.querySelectorAll('.findPriceBtn');
+    let stations = [];
+    let targetInput = null;
 
-    async function openFuelPopup(targetInput) {
-      currentInputTarget = targetInput;
-      document.getElementById('fuel-popup').style.display = 'block';
-      await loadStations();
-    }
+    findButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        targetInput = document.getElementById(btn.dataset.target);
+        document.getElementById('fuel-popup').style.display = 'block';
+        document.getElementById('stationList').innerHTML = '<p>Loading stations...</p>';
 
-    function closeFuelPopup() {
-      document.getElementById('fuel-popup').style.display = 'none';
-    }
+        try {
+          const res = await fetch('/api/fuel');
+          const data = await res.json();
+          stations = data.stations;
+          renderStations(stations);
+        } catch (err) {
+          document.getElementById('stationList').innerHTML = '<p>Failed to load data.</p>';
+        }
+      });
+    });
 
-    async function loadStations() {
-      const res = await fetch('/api/fuel');
-      const data = await res.json();
-      const fuelType = document.getElementById('fuel-type').value;
-      const stations = data.stations.filter(s => s[fuelType] !== null);
-      window.filteredStations = stations;
-      renderStationList(stations);
-    }
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const query = e.target.value.toLowerCase();
+      const filtered = stations.filter(st =>
+        st.postcode.toLowerCase().includes(query) || st.brand.toLowerCase().includes(query)
+      );
+      renderStations(filtered);
+    });
 
-    function renderStationList(list) {
+    function renderStations(list) {
+      const fuelType = document.getElementById('fuelType').value;
       const container = document.getElementById('stationList');
       container.innerHTML = '';
-      list.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'station-item';
-        div.textContent = `${s.brand} (${s.postcode}) - £${s[document.getElementById('fuel-type').value]}`;
-        div.onclick = () => {
-          const value = s[document.getElementById('fuel-type').value];
-          if (currentInputTarget === 'local') {
-            document.getElementById('local-price').value = value;
-          } else {
-            document.getElementById('cheaper-price').value = value;
-          }
-          closeFuelPopup();
-        };
-        container.appendChild(div);
+      list.slice(0, 50).forEach(st => {
+        const price = fuelType === 'unleaded' ? st.unleaded : st.diesel;
+        if (price) {
+          const div = document.createElement('div');
+          div.className = 'station';
+          div.innerHTML = `<strong>${st.brand}</strong> (${st.postcode}) - £${price.toFixed(1)}`;
+          div.addEventListener('click', () => {
+            targetInput.value = price.toFixed(1);
+            document.getElementById('fuel-popup').style.display = 'none';
+          });
+          container.appendChild(div);
+        }
       });
     }
 
-    document.getElementById('search').addEventListener('input', e => {
-      const query = e.target.value.toLowerCase();
-      const results = window.filteredStations.filter(s => s.postcode.toLowerCase().includes(query));
-      renderStationList(results);
+    document.getElementById('close-fuel-popup').addEventListener('click', () => {
+      document.getElementById('fuel-popup').style.display = 'none';
     });
 
-    function calculate() {
-      const local = parseFloat(document.getElementById('local-price').value);
-      const cheaper = parseFloat(document.getElementById('cheaper-price').value);
-      const distance = parseFloat(document.getElementById('distance').value);
-      const mpg = parseFloat(document.getElementById('mpg').value);
-      const budget = parseFloat(document.getElementById('budget').value);
+    document.getElementById('fuelForm').addEventListener('submit', e => {
+      e.preventDefault();
 
-      if (isNaN(local) || isNaN(cheaper) || isNaN(distance) || isNaN(mpg) || isNaN(budget)) {
-        document.getElementById('output').innerHTML = '<p style="color:red;">Please fill in all fields.</p>';
+      const local = parseFloat(document.getElementById('localPrice').value);
+      const cheaper = parseFloat(document.getElementById('cheaperPrice').value);
+      const distance = parseFloat(document.getElementById('distance').value);
+      const efficiency = parseFloat(document.getElementById('efficiency').value);
+      const spend = parseFloat(document.getElementById('spend').value);
+
+      if (!local || !cheaper || !distance || !efficiency || !spend) {
+        alert('Please fill in all fields.');
         return;
       }
 
-      const fuelNeeded = (budget / local).toFixed(2);
-      const travelCost = (distance / mpg * 4.546 * local).toFixed(2);
-      const savingsPerLitre = (local - cheaper).toFixed(2);
-      const totalSavings = (savingsPerLitre * fuelNeeded).toFixed(2);
-      const netSavings = (totalSavings - travelCost).toFixed(2);
+      const litresLocal = spend / local;
+      const litresCheaper = spend / cheaper;
+      const fuelUsed = (distance / efficiency) * 4.546; // Convert MPG to litres
+      const tripCost = fuelUsed * local;
+      const netSavings = (litresCheaper - litresLocal) * local - tripCost;
 
-      document.getElementById('output').innerHTML = `
-        <h3>Results:</h3>
-        <ul>
-          <li>Fuel you can buy locally: ${fuelNeeded} litres</li>
-          <li>Potential savings per litre: £${savingsPerLitre}</li>
-          <li>Total potential savings: £${totalSavings}</li>
-          <li>Estimated travel cost: £${travelCost}</li>
-          <li><strong>Net savings: £${netSavings}</strong></li>
-        </ul>
-        <p><strong>Is it worth it?</strong> You decide!</p>
+      document.getElementById('results').innerHTML = `
+        <p>Local: ${litresLocal.toFixed(2)}L | Cheaper: ${litresCheaper.toFixed(2)}L</p>
+        <p>Cost of trip: £${tripCost.toFixed(2)}</p>
+        <p>Net savings: £${netSavings.toFixed(2)}</p>
+        <h3>🤔 Is it worth it?</h3>
       `;
-    }
+    });
   </script>
 </body>
 </html>

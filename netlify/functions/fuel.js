@@ -3,7 +3,8 @@ import fetch from 'node-fetch';
 export async function handler() {
   try {
     const response = await fetch(
-      'https://raw.githubusercontent.com/mindsers/open-fuel-prices/main/prices.json'
+      'https://raw.githubusercontent.com/mindsers/open-fuel-prices/main/prices.json',
+      { method: 'GET' }
     );
     const data = await response.json();
 
@@ -19,7 +20,7 @@ export async function handler() {
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',          // ✅ Allow any domain
+        'Access-Control-Allow-Origin': '*', // Allow any domain
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'

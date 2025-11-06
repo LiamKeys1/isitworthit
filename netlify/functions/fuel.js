@@ -7,7 +7,6 @@ export async function handler() {
     );
     const data = await response.json();
 
-    // Transform data into a cleaner format for your app
     const stations = data.stations
       .filter(st => st.unleaded || st.diesel)
       .map(st => ({
@@ -19,11 +18,21 @@ export async function handler() {
 
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',          // ✅ Allow any domain
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ stations })
     };
   } catch (err) {
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ error: err.message })
     };
   }

@@ -1,6 +1,6 @@
 [build]
-  functions = "isitworthit/netlify/functions"
-  publish = "isitworthit"
+  functions = "netlify/functions"
+  publish = "."
 
 [[redirects]]
   from = "/api/*"

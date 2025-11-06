@@ -1,8 +1,6 @@
 // Rebuild trigger — 6 Nov 2025
 import fetch from 'node-fetch';
 
-import fetch from 'node-fetch';
-
 export async function handler() {
   try {
     const response = await fetch(

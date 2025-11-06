@@ -165,7 +165,7 @@
         document.getElementById('stationList').innerHTML = '<p>Loading stations...</p>';
 
         try {
-          const res = await fetch('/api/fuel');
+          const res = await fetch('https://worthitcalc.netlify.app/api/fuel');
           const data = await res.json();
           stations = data.stations;
           renderStations(stations);
